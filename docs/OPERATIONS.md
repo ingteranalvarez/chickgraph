@@ -27,7 +27,23 @@ Run the E2E suite against production without starting a local server:
 PLAYWRIGHT_BASE_URL=https://chickgraph.vercel.app npm run test:e2e
 ```
 
-## Email and Google authentication
+## Google authentication
+
+Google sign-in is enabled in production with the dedicated Google Cloud project
+`chickgraph-online` and the web client `ChickGraph Production`.
+
+- Authorized JavaScript origin: `https://chickgraph.vercel.app`
+- Authorized redirect URI: `https://srhhfbizefawxrzhhemj.supabase.co/auth/v1/callback`
+- Vercel: `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true`
+
+The provider secret belongs in Supabase Auth and in
+`SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET` for local/config-push workflows. Never
+commit it. The owner recovery copy is stored in the macOS Keychain under the
+service `ChickGraph Google OAuth Client Secret`. After changing OAuth
+configuration, smoke-test the Google account chooser, profile onboarding, and
+lobby entry from the production URL.
+
+## Email authentication
 
 Supabase's default email provider only delivers to members of the project's team.
 Public registration therefore requires custom SMTP; the deployed form is not
@@ -37,9 +53,6 @@ After configuring custom SMTP, push the six-digit confirmation template from
 `supabase/config.toml`, set `NEXT_PUBLIC_EMAIL_VERIFICATION_MODE=code`, and verify
 registration plus password recovery with an address outside the Supabase team.
 Keep SMTP credentials in Supabase only and never commit them to this repository.
-
-Google login requires a Google OAuth client and the Supabase callback URL. Set
-`NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` only after the provider is enabled.
 
 ## Incident response
 

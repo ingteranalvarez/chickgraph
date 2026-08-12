@@ -11,7 +11,7 @@ artillery genre. It does not contain Graphwar source code or assets.
 
 ## MVP features
 
-- Email/password registration with email confirmation and password recovery
+- Google sign-in plus email/password registration and password recovery
 - Immutable, case-insensitive unique usernames, country, and 16+ confirmation
 - Public FIFO 1v1 matchmaking and private rooms with six-character invite codes
 - Server-authoritative normal-function mode with two chickens per player
@@ -20,11 +20,10 @@ artillery genre. It does not contain Graphwar source code or assets.
 - Elo ratings and a worldwide leaderboard
 - Responsive authentication and a desktop-first game interface
 
-Google authentication is wired into the UI but disabled until OAuth credentials
-are configured. Six-digit email verification templates are included under
-`supabase/templates`. Public email registration requires custom SMTP: Supabase's
-default mail provider refuses recipients who are not members of the project's
-team and is not suitable for production.
+Google authentication is enabled in production. Six-digit email verification
+templates are included under `supabase/templates`. Public email registration
+still requires custom SMTP: Supabase's default mail provider refuses recipients
+who are not members of the project's team and is not suitable for production.
 
 ## Stack
 
