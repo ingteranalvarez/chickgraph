@@ -252,7 +252,21 @@ export function AuthScreen({ confirmationError }: { confirmationError: boolean }
               {googleEnabled && mode !== "recover" && (
                 <>
                   <div className="or-divider"><span>or</span></div>
-                  <button className="button button-secondary" onClick={googleSignIn} disabled={busy}>Continue with Google</button>
+                  <button
+                    type="button"
+                    className="button button-secondary auth-google-button"
+                    onClick={googleSignIn}
+                    disabled={busy}
+                  >
+                    <Image
+                      className="auth-google-logo"
+                      src="/google-g.png"
+                      width={200}
+                      height={204}
+                      alt=""
+                    />
+                    Continue with Google
+                  </button>
                 </>
               )}
             </>

@@ -21,3 +21,11 @@ The source sheet was generated for ChickGraph from this art direction:
 The sheet was chroma-keyed, cropped, and normalized into transparent 512x512 PNG
 sprites. The generated source sheet and intermediate files are intentionally not
 committed.
+
+## Google sign-in mark
+
+`public/google-g.png` is Google's standard color "G" mark, downloaded from the
+[Google Identity branding guidelines](https://developers.google.com/identity/branding-guidelines).
+Google and the Google logo are trademarks of Google LLC. The mark is used only
+to identify the Google sign-in action and is not covered by the chicken sprite
+license above.

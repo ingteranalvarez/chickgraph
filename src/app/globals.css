@@ -433,6 +433,19 @@ h2 {
   background: var(--line);
 }
 
+.auth-google-button {
+  width: 100%;
+  border-color: #747775;
+  color: #1f1f1f;
+  font-size: 14px;
+}
+
+.auth-google-logo {
+  width: 18px;
+  height: auto;
+  flex: 0 0 auto;
+}
+
 .auth-back {
   margin-bottom: 24px;
 }
