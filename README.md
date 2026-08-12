@@ -4,6 +4,8 @@ ChickGraph is an open-source, browser-based mathematical artillery game. Players
 take turns entering functions whose graphs become projectiles. Eliminate every
 opposing chicken to win.
 
+Play the public preview at [chickgraph.vercel.app](https://chickgraph.vercel.app).
+
 The project is a clean-room implementation inspired by the mathematical
 artillery genre. It does not contain Graphwar source code or assets.
 

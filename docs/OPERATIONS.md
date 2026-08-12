@@ -21,6 +21,12 @@ Vercel requires these environment variables:
 After assigning the production URL, add its `/auth/callback` URL to Supabase Auth
 redirect URLs and set the Supabase site URL to the production origin.
 
+Run the E2E suite against production without starting a local server:
+
+```bash
+PLAYWRIGHT_BASE_URL=https://chickgraph.vercel.app npm run test:e2e
+```
+
 ## Email and Google authentication
 
 The free Supabase default email provider sends confirmation links and is intended
