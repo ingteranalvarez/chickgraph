@@ -22,8 +22,9 @@ artillery genre. It does not contain Graphwar source code or assets.
 
 Google authentication is wired into the UI but disabled until OAuth credentials
 are configured. Six-digit email verification templates are included under
-`supabase/templates`; Supabase's free default mail provider only allows its
-standard confirmation link, so code mode requires custom SMTP.
+`supabase/templates`. Public email registration requires custom SMTP: Supabase's
+default mail provider refuses recipients who are not members of the project's
+team and is not suitable for production.
 
 ## Stack
 

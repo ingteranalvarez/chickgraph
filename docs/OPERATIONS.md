@@ -29,10 +29,14 @@ PLAYWRIGHT_BASE_URL=https://chickgraph.vercel.app npm run test:e2e
 
 ## Email and Google authentication
 
-The free Supabase default email provider sends confirmation links and is intended
-for low-volume previews. To use a six-digit branded code, configure custom SMTP,
-then restore the confirmation template block in `supabase/config.toml` and set
-`NEXT_PUBLIC_EMAIL_VERIFICATION_MODE=code`.
+Supabase's default email provider only delivers to members of the project's team.
+Public registration therefore requires custom SMTP; the deployed form is not
+operational for arbitrary addresses until that provider is configured.
+
+After configuring custom SMTP, push the six-digit confirmation template from
+`supabase/config.toml`, set `NEXT_PUBLIC_EMAIL_VERIFICATION_MODE=code`, and verify
+registration plus password recovery with an address outside the Supabase team.
+Keep SMTP credentials in Supabase only and never commit them to this repository.
 
 Google login requires a Google OAuth client and the Supabase callback URL. Set
 `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` only after the provider is enabled.
