@@ -1,0 +1,1 @@
+-- Intentionally empty. Test users are created through Supabase Auth.
