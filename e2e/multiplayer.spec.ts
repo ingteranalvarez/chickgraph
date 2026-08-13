@@ -74,7 +74,7 @@ async function signIn(page: Page, user: QaUser) {
   await expect(page.getByRole("heading", { name: "Choose a match" })).toBeVisible();
 }
 
-test("private room and public queue synchronize two browsers", async ({ browser }, testInfo) => {
+test("practice, private room, and public queue flows work", async ({ browser }, testInfo) => {
   test.skip(users.length < 2, "Supabase server credentials are required for multiplayer QA.");
   const firstContext = await browser.newContext();
   const secondContext = await browser.newContext();
@@ -82,6 +82,21 @@ test("private room and public queue synchronize two browsers", async ({ browser 
   const second = await secondContext.newPage();
 
   await Promise.all([signIn(first, users[0]), signIn(second, users[1])]);
+
+  await first.getByRole("button", { name: "Practice vs bot" }).click();
+  await expect(first.getByText("Practice 1v1")).toBeVisible();
+  await expect(first.locator("svg.game-board")).toBeVisible();
+  await expect(first.getByText("GraphBot").first()).toBeVisible();
+  await first.getByRole("textbox", { name: "Function" }).fill("0");
+  await first.getByRole("button", { name: "Fire" }).click();
+  await expect(first.getByText("Turn 3")).toBeVisible({ timeout: 15_000 });
+  await expect(first.getByRole("textbox", { name: "Function" })).toBeEnabled();
+  await first.screenshot({
+    path: testInfo.outputPath("practice-match.png"),
+    fullPage: true,
+  });
+  await first.getByRole("button", { name: "Exit" }).click();
+  await expect(first.getByRole("heading", { name: "Choose a match" })).toBeVisible();
 
   await first.getByRole("button", { name: "Create invite code" }).click();
   await expect(first.getByRole("heading", { name: "Waiting for your opponent" })).toBeVisible();
@@ -121,21 +136,35 @@ test("private room and public queue synchronize two browsers", async ({ browser 
   await expect(first.getByRole("heading", { name: "Choose a match" })).toBeVisible();
   await expect(second.getByRole("heading", { name: "Choose a match" })).toBeVisible();
 
-  await first.getByRole("button", { name: "Find opponent" }).click();
-  await expect(first.getByText("Finding your opponent")).toBeVisible();
-  await second.getByRole("button", { name: "Find opponent" }).click();
-  await expect(second.locator("svg.game-board")).toBeVisible();
-  await expect(first.locator("svg.game-board")).toBeVisible();
-  await expect(first.getByText("Ranked 1v1")).toBeVisible();
+  if (process.env.RUN_PUBLIC_QUEUE_E2E === "true") {
+    const { count: waitingPlayers, error: queueError } = await admin!
+      .from("matchmaking_queue")
+      .select("user_id", { count: "exact", head: true });
+    if (queueError) throw queueError;
+    expect(waitingPlayers, "The live queue must be empty before public queue QA.").toBe(0);
 
-  await first.screenshot({
-    path: testInfo.outputPath("public-queue-match.png"),
-    fullPage: true,
-  });
+    await Promise.all([
+      first.getByRole("button", { name: "Find opponent" }).click(),
+      second.getByRole("button", { name: "Find opponent" }).click(),
+    ]);
+    await expect(second.locator("svg.game-board")).toBeVisible();
+    await expect(first.locator("svg.game-board")).toBeVisible();
+    await expect(first.getByText("Ranked 1v1")).toBeVisible();
 
-  second.once("dialog", (dialog) => dialog.accept());
-  await second.getByRole("button", { name: "Resign" }).click();
-  await expect(first.getByRole("heading", { name: "Victory" })).toBeVisible();
+    await first.screenshot({
+      path: testInfo.outputPath("public-queue-match.png"),
+      fullPage: true,
+    });
+
+    second.once("dialog", (dialog) => dialog.accept());
+    await second.getByRole("button", { name: "Resign" }).click();
+    await expect(first.getByRole("heading", { name: "Victory" })).toBeVisible();
+  } else {
+    testInfo.annotations.push({
+      type: "queue",
+      description: "Public queue QA requires RUN_PUBLIC_QUEUE_E2E=true.",
+    });
+  }
 
   await Promise.all([firstContext.close(), secondContext.close()]);
 });

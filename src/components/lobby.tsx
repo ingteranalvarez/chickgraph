@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  Bot,
   Copy,
   DoorOpen,
   LoaderCircle,
@@ -27,12 +28,14 @@ interface MatchmakingResponse {
 export function Lobby({
   profile,
   onMatch,
+  onPractice,
 }: {
   profile: PublicProfile;
   onMatch: (match: MatchSnapshot) => void;
+  onPractice: () => void;
 }) {
   const [queueing, setQueueing] = useState(false);
-  const [busyAction, setBusyAction] = useState<"queue" | "create" | "join" | null>(null);
+  const [busyAction, setBusyAction] = useState<"queue" | "practice" | "create" | "join" | null>(null);
   const [error, setError] = useState("");
 
   const checkQueue = useCallback(async () => {
@@ -108,6 +111,22 @@ export function Lobby({
     }
   }
 
+  async function startPractice() {
+    setBusyAction("practice");
+    setError("");
+    try {
+      if (queueing) {
+        await apiRequest("/api/matchmaking", { method: "DELETE" });
+        setQueueing(false);
+      }
+      onPractice();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not start practice.");
+    } finally {
+      setBusyAction(null);
+    }
+  }
+
   async function createRoom() {
     setBusyAction("create");
     setError("");
@@ -161,11 +180,23 @@ export function Lobby({
           <div><dt>Turn</dt><dd>60 seconds</dd></div>
           <div><dt>Units</dt><dd>2 chickens</dd></div>
         </dl>
-        {queueing ? (
-          <div className="queue-actions"><span className="searching-label"><LoaderCircle className="spin" size={18} /> Searching worldwide</span><button className="button button-secondary" onClick={leaveQueue} disabled={busyAction === "queue"}><X size={17} /> Cancel</button></div>
-        ) : (
-          <button className="button button-primary queue-button" onClick={joinQueue} disabled={busyAction !== null}>{busyAction === "queue" ? <LoaderCircle className="spin" size={18} /> : <Search size={18} />}Find opponent</button>
-        )}
+        <div className="queue-actions">
+          {queueing && <span className="searching-label"><LoaderCircle className="spin" size={18} /> Searching worldwide</span>}
+          <div className="queue-action-buttons">
+            {queueing ? (
+              <button className="button button-secondary" onClick={leaveQueue} disabled={busyAction !== null}>
+                {busyAction === "queue" ? <LoaderCircle className="spin" size={17} /> : <X size={17} />} Cancel search
+              </button>
+            ) : (
+              <button className="button button-primary queue-button" onClick={joinQueue} disabled={busyAction !== null}>
+                {busyAction === "queue" ? <LoaderCircle className="spin" size={18} /> : <Search size={18} />} Find opponent
+              </button>
+            )}
+            <button className="button button-secondary" onClick={startPractice} disabled={busyAction !== null}>
+              {busyAction === "practice" ? <LoaderCircle className="spin" size={17} /> : <Bot size={17} />} Practice vs bot
+            </button>
+          </div>
+        </div>
       </section>
 
       <div className="private-grid">

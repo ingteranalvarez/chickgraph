@@ -4,7 +4,7 @@
 
 1. Check Vercel deployment status and function errors.
 2. Check Supabase database size, Auth email quota, Realtime connections, and API errors.
-3. Confirm public queue and private room E2E still pass.
+3. Confirm practice bot, public queue, and private room E2E still pass.
 4. Review dependency alerts and failed GitHub Actions.
 
 ## Deployment
@@ -25,6 +25,13 @@ Run the E2E suite against production without starting a local server:
 
 ```bash
 PLAYWRIGHT_BASE_URL=https://chickgraph.vercel.app npm run test:e2e
+```
+
+Public queue E2E is disabled by default because it uses the live matchmaking
+pool. Run it only in a controlled window after confirming no player is waiting:
+
+```bash
+RUN_PUBLIC_QUEUE_E2E=true npm run test:e2e
 ```
 
 ## Google authentication

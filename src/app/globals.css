@@ -728,6 +728,16 @@ h2 {
   gap: 10px;
 }
 
+.queue-action-buttons {
+  min-width: 180px;
+  display: grid;
+  gap: 8px;
+}
+
+.queue-action-buttons .button {
+  width: 100%;
+}
+
 .searching-label,
 .connection-line {
   display: flex;
@@ -1190,6 +1200,12 @@ h2 {
   font-size: 28px;
 }
 
+.practice-result-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
 .player-panel {
   min-height: 0;
   display: grid;
@@ -1352,6 +1368,51 @@ h2 {
   color: #fff;
 }
 
+.practice-log {
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 16px;
+}
+
+.practice-log-list {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.practice-log-entry {
+  display: grid;
+  gap: 6px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #f7f8f6;
+}
+
+.practice-log-entry > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+}
+
+.practice-log-entry > div span {
+  color: var(--muted);
+}
+
+.practice-log-entry code {
+  overflow: hidden;
+  color: var(--ink-soft);
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .formula-bar {
   z-index: 8;
   display: grid;
@@ -1503,7 +1564,8 @@ h2 {
   }
 
   .queue-panel .queue-button,
-  .queue-actions {
+  .queue-actions,
+  .queue-action-buttons {
     width: 100%;
   }
 

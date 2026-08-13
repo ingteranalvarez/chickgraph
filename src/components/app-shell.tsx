@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { GameRoom } from "@/components/game/game-room";
+import { PracticeRoom } from "@/components/game/practice-room";
 import { Leaderboard } from "@/components/leaderboard";
 import { Lobby } from "@/components/lobby";
 import type { MatchSnapshot } from "@/lib/matches/types";
@@ -33,6 +34,14 @@ export function AppShell({
   const router = useRouter();
   const [view, setView] = useState<View>("play");
   const [match, setMatch] = useState<MatchSnapshot | null>(initialMatch);
+  const [practiceSeed, setPracticeSeed] = useState<number | null>(null);
+
+  function nextPracticeSeed() {
+    const value = new Uint32Array(1);
+    window.crypto.getRandomValues(value);
+    setPracticeSeed(value[0]);
+    setView("play");
+  }
 
   async function signOut() {
     await createClient().auth.signOut();
@@ -61,17 +70,25 @@ export function AppShell({
         </div>
       </header>
 
-      {view === "leaderboard" && !match ? (
-        <Leaderboard currentUserId={userId} />
-      ) : match ? (
+      {match ? (
         <GameRoom
           initialMatch={match}
           userId={userId}
           onMatchChange={setMatch}
           onExit={() => setMatch(null)}
         />
+      ) : practiceSeed !== null ? (
+        <PracticeRoom
+          key={practiceSeed}
+          profile={profile}
+          seed={practiceSeed}
+          onExit={() => setPracticeSeed(null)}
+          onRematch={nextPracticeSeed}
+        />
+      ) : view === "leaderboard" ? (
+        <Leaderboard currentUserId={userId} />
       ) : (
-        <Lobby profile={profile} onMatch={setMatch} />
+        <Lobby profile={profile} onMatch={setMatch} onPractice={nextPracticeSeed} />
       )}
     </div>
   );
