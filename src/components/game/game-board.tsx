@@ -25,10 +25,14 @@ export function GameBoard({
   state,
   shot,
   userId,
+  targetChickId,
+  preview = false,
 }: {
   state: GameState;
   shot: ShotResult | null;
   userId: string;
+  targetChickId?: string;
+  preview?: boolean;
 }) {
   const curve = shot?.points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${screenX(point.x).toFixed(2)} ${screenY(point.y).toFixed(2)}`)
@@ -97,7 +101,7 @@ export function GameBoard({
               key={`${shot?.turnNumber}-${shot?.expression}`}
               d={curve}
               pathLength="1"
-              className={`shot-path shot-${state.players.find((player) => player.id === shot?.shooterId)?.color ?? "cyan"}`}
+              className={`shot-path shot-${state.players.find((player) => player.id === shot?.shooterId)?.color ?? "cyan"} ${preview ? "shot-preview" : ""}`}
             />
           )}
 
@@ -107,6 +111,7 @@ export function GameBoard({
             const diameter = (CHICK_RADIUS * 2 * BOARD_WIDTH) / (WORLD.maxX - WORLD.minX);
             const imageSize = diameter * 1.24;
             const isActiveShooter = activeShooter?.id === chicken.id;
+            const isTarget = targetChickId === chicken.id;
             return (
               <g
                 key={chicken.id}
@@ -119,6 +124,14 @@ export function GameBoard({
                     cy={screenY(chicken.y)}
                     r={diameter / 2 + 9}
                     className={`active-shooter-halo halo-${player.color}`}
+                  />
+                )}
+                {isTarget && (
+                  <circle
+                    cx={screenX(chicken.x)}
+                    cy={screenY(chicken.y)}
+                    r={diameter / 2 + 11}
+                    className="tutorial-target-halo"
                   />
                 )}
                 <circle
@@ -174,7 +187,7 @@ export function GameBoard({
           ))}
         </g>
       </svg>
-      <div className="board-corner-label">NORMAL MODE</div>
+      <div className="board-corner-label">{preview ? "LIVE PREVIEW" : "NORMAL MODE"}</div>
     </div>
   );
 }

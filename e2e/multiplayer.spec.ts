@@ -74,7 +74,7 @@ async function signIn(page: Page, user: QaUser) {
   await expect(page.getByRole("heading", { name: "Choose a match" })).toBeVisible();
 }
 
-test("practice, private room, and public queue flows work", async ({ browser }, testInfo) => {
+test("tutorial, practice, private room, and public queue flows work", async ({ browser }, testInfo) => {
   test.skip(users.length < 2, "Supabase server credentials are required for multiplayer QA.");
   const firstContext = await browser.newContext();
   const secondContext = await browser.newContext();
@@ -82,6 +82,31 @@ test("practice, private room, and public queue flows work", async ({ browser }, 
   const second = await secondContext.newPage();
 
   await Promise.all([signIn(first, users[0]), signIn(second, users[1])]);
+
+  await first.getByRole("button", { name: "Learn" }).click();
+  await expect(first.getByRole("heading", { name: "Straight line" })).toBeVisible();
+  await expect(first.locator(".tutorial-target-halo")).toBeVisible();
+  await expect(first.locator(".board-chicken.active-shooter")).toHaveCount(1);
+  await expect(first.locator(".board-corner-label")).toHaveText("LIVE PREVIEW");
+  await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.getByText("Direct hit. Level complete.")).toBeVisible();
+  await first.getByRole("button", { name: "Next level" }).click();
+  await expect(first.getByRole("heading", { name: "Climb with slope" })).toBeVisible();
+  const slope = first.getByRole("slider", { name: "Slope" });
+  await slope.focus();
+  for (let step = 0; step < 10; step += 1) await slope.press("ArrowRight");
+  await expect(first.locator(".tutorial-formula code")).toHaveText("0.75*x");
+  await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.getByText("Direct hit. Level complete.")).toBeVisible();
+  await first.screenshot({
+    path: testInfo.outputPath("tutorial-level.png"),
+    fullPage: true,
+  });
+  await first.getByRole("button", { name: "Play" }).click();
+  await expect(first.getByRole("heading", { name: "Choose a match" })).toBeVisible();
+  await first.getByRole("button", { name: "Learn" }).click();
+  await expect(first.getByRole("heading", { name: "Descend with slope" })).toBeVisible();
+  await first.getByRole("button", { name: "Play" }).click();
 
   await first.getByRole("button", { name: "Practice vs bot" }).click();
   await expect(first.getByText("Practice 1v1")).toBeVisible();

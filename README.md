@@ -15,6 +15,7 @@ artillery genre. It does not contain Graphwar source code or assets.
 - Immutable, case-insensitive unique usernames, country, and 16+ confirmation
 - Public FIFO 1v1 matchmaking and private rooms with six-character invite codes
 - Local unranked practice against a deterministic formula-playing bot
+- Five-level guided tutorial with live graph previews and parameter controls
 - Server-authoritative normal-function mode with two chickens per player
 - Deterministic seeded maps, circular hitboxes, 60-second turns, and reconnection
 - Supabase Realtime state updates, presence, and match chat
@@ -71,8 +72,8 @@ npm run test:e2e
 npm run build
 ```
 
-The multiplayer E2E test creates two confirmed Supabase users, exercises a
-practice match, a private room, and the public queue in separate browser
+The multiplayer E2E test creates two confirmed Supabase users, exercises the
+guided tutorial, a practice match, a private room, and the public queue in separate browser
 contexts, then deletes the test users. Public queue QA is opt-in with
 `RUN_PUBLIC_QUEUE_E2E=true` and refuses to start unless the live queue is empty,
 so automated users do not pair with real players. The test requires the

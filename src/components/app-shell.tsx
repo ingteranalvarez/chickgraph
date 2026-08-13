@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  BookOpen,
   Coffee,
   Code2,
   LogOut,
@@ -16,11 +17,12 @@ import { GameRoom } from "@/components/game/game-room";
 import { PracticeRoom } from "@/components/game/practice-room";
 import { Leaderboard } from "@/components/leaderboard";
 import { Lobby } from "@/components/lobby";
+import { Tutorial } from "@/components/tutorial";
 import type { MatchSnapshot } from "@/lib/matches/types";
 import type { PublicProfile } from "@/lib/profiles/types";
 import { createClient } from "@/lib/supabase/client";
 
-type View = "play" | "leaderboard";
+type View = "play" | "learn" | "leaderboard";
 
 export function AppShell({
   profile,
@@ -56,6 +58,9 @@ export function AppShell({
           <button className={view === "play" ? "active" : ""} onClick={() => setView("play")}>
             <Play size={16} fill="currentColor" /> Play
           </button>
+          <button className={view === "learn" ? "active" : ""} onClick={() => setView("learn")}>
+            <BookOpen size={17} /> Learn
+          </button>
           <button className={view === "leaderboard" ? "active" : ""} onClick={() => setView("leaderboard")}>
             <Medal size={17} /> Leaderboard
           </button>
@@ -87,6 +92,8 @@ export function AppShell({
         />
       ) : view === "leaderboard" ? (
         <Leaderboard currentUserId={userId} />
+      ) : view === "learn" ? (
+        <Tutorial profile={profile} onExit={() => setView("play")} />
       ) : (
         <Lobby profile={profile} onMatch={setMatch} onPractice={nextPracticeSeed} />
       )}
