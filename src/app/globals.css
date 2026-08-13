@@ -1107,9 +1107,14 @@ h2 {
 }
 
 .axis-labels {
-  fill: #9b9f9a;
+  fill: #777b77;
+  stroke: rgb(250 251 248 / 92%);
+  stroke-width: 4px;
+  paint-order: stroke fill;
   font-family: var(--font-geist-mono), monospace;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 650;
+  pointer-events: none;
 }
 
 .obstacle circle:first-child {
@@ -1132,8 +1137,42 @@ h2 {
   stroke: rgb(20 22 20 / 28%);
 }
 
+.active-shooter-halo {
+  fill: rgb(255 255 255 / 72%);
+  stroke-width: 6;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: shooter-pulse 1.6s ease-in-out infinite;
+}
+
+.halo-cyan {
+  stroke: var(--cyan);
+  filter: drop-shadow(0 0 7px rgb(4 204 231 / 85%));
+}
+
+.halo-coral {
+  stroke: var(--coral);
+  filter: drop-shadow(0 0 7px rgb(255 79 97 / 85%));
+}
+
+.halo-lime {
+  stroke: var(--lime);
+  filter: drop-shadow(0 0 7px rgb(141 220 25 / 85%));
+}
+
+.halo-yellow {
+  stroke: var(--yellow);
+  filter: drop-shadow(0 0 7px rgb(255 210 26 / 85%));
+}
+
+@keyframes shooter-pulse {
+  0%, 100% { opacity: 0.68; transform: scale(0.94); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
 .board-chicken.dead image,
-.board-chicken.dead .chicken-hitbox {
+.board-chicken.dead .chicken-hitbox,
+.board-chicken.dead .active-shooter-halo {
   opacity: 0;
 }
 

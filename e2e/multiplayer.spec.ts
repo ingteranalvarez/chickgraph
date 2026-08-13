@@ -87,10 +87,20 @@ test("practice, private room, and public queue flows work", async ({ browser }, 
   await expect(first.getByText("Practice 1v1")).toBeVisible();
   await expect(first.locator("svg.game-board")).toBeVisible();
   await expect(first.getByText("GraphBot").first()).toBeVisible();
+  await expect(first.locator(".board-chicken.active-shooter")).toHaveCount(1);
+  await expect(first.locator(".axis-labels-x text")).toHaveCount(11);
+  await expect(first.locator(".axis-labels-y text")).toHaveCount(6);
+  const firstShooter = await first
+    .locator(".board-chicken.active-shooter")
+    .getAttribute("data-chick-id");
   await first.getByRole("textbox", { name: "Function" }).fill("0");
   await first.getByRole("button", { name: "Fire" }).click();
   await expect(first.getByText("Turn 3")).toBeVisible({ timeout: 15_000 });
   await expect(first.getByRole("textbox", { name: "Function" })).toBeEnabled();
+  const nextShooter = await first
+    .locator(".board-chicken.active-shooter")
+    .getAttribute("data-chick-id");
+  expect(nextShooter).not.toBe(firstShooter);
   await first.screenshot({
     path: testInfo.outputPath("practice-match.png"),
     fullPage: true,

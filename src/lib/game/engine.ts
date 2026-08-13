@@ -82,17 +82,24 @@ function findCollision(
   return null;
 }
 
-function shooterFor(state: GameState, playerId: string): ChickState {
+export function getActiveChicken(
+  state: GameState,
+  playerId: string,
+): ChickState | null {
   const available = state.chickens
     .filter((chicken) => chicken.ownerId === playerId && chicken.alive)
     .sort((left, right) => left.slot - right.slot);
 
-  if (available.length === 0) {
-    throw new GameRuleError("This player has no chickens left.");
-  }
+  if (available.length === 0) return null;
 
   const playerRound = Math.floor(state.turnNumber / state.players.length);
   return available[playerRound % available.length];
+}
+
+function shooterFor(state: GameState, playerId: string): ChickState {
+  const shooter = getActiveChicken(state, playerId);
+  if (!shooter) throw new GameRuleError("This player has no chickens left.");
+  return shooter;
 }
 
 function nextLivingPlayer(state: GameState, currentPlayerId: string): string | null {

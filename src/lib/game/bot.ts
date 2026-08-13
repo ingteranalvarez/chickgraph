@@ -1,5 +1,5 @@
 import { CHICK_RADIUS } from "./constants";
-import { GameRuleError, traceShot } from "./engine";
+import { GameRuleError, getActiveChicken, traceShot } from "./engine";
 import type { ChickState, GameState, ShotResult } from "./types";
 
 const curvatures = [
@@ -30,15 +30,6 @@ interface Candidate {
   expression: string;
   shot: ShotResult;
   distance: number;
-}
-
-function activeChicken(state: GameState, playerId: string): ChickState {
-  const available = state.chickens
-    .filter((chicken) => chicken.ownerId === playerId && chicken.alive)
-    .sort((left, right) => left.slot - right.slot);
-  if (available.length === 0) throw new GameRuleError("The bot has no chickens left.");
-  const round = Math.floor(state.turnNumber / state.players.length);
-  return available[round % available.length];
 }
 
 function formatNumber(value: number): string {
@@ -94,7 +85,8 @@ export function chooseBotExpression(state: GameState, botId: string): string {
     throw new GameRuleError("The bot can only aim during its own active turn.");
   }
 
-  const shooter = activeChicken(state, botId);
+  const shooter = getActiveChicken(state, botId);
+  if (!shooter) throw new GameRuleError("The bot has no chickens left.");
   const enemies = state.chickens.filter(
     (chicken) => chicken.ownerId !== botId && chicken.alive,
   );

@@ -4,6 +4,7 @@ import {
   fireShot,
   GameRuleError,
   createInitialState,
+  getActiveChicken,
   resignMatch,
   skipExpiredTurn,
   traceShot,
@@ -76,6 +77,7 @@ describe("deterministic engine", () => {
       currentPlayerId: "alpha",
     };
     const shot = traceShot(state, "alpha", "0");
+    expect(getActiveChicken(state, "alpha")?.id).toBe("alpha-chick-2");
     expect(shot.shooterChickId).toBe("alpha-chick-2");
     expect(shot.points[0]).toEqual({ x: -19, y: 7 });
   });

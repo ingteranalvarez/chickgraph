@@ -1,10 +1,20 @@
 "use client";
 
 import { CHICK_RADIUS, WORLD } from "@/lib/game/constants";
+import { getActiveChicken } from "@/lib/game/engine";
 import type { GameState, ShotResult } from "@/lib/game/types";
 
 const BOARD_WIDTH = 1_000;
 const BOARD_HEIGHT = 600;
+const GRID_STEP = 5;
+const xTicks = Array.from(
+  { length: (WORLD.maxX - WORLD.minX) / GRID_STEP + 1 },
+  (_, index) => WORLD.minX + index * GRID_STEP,
+);
+const yTicks = Array.from(
+  { length: (WORLD.maxY - WORLD.minY) / GRID_STEP + 1 },
+  (_, index) => WORLD.minY + index * GRID_STEP,
+);
 
 const screenX = (x: number) =>
   ((x - WORLD.minX) / (WORLD.maxX - WORLD.minX)) * BOARD_WIDTH;
@@ -26,6 +36,10 @@ export function GameBoard({
   const hitChick = shot?.hitChickId
     ? state.chickens.find((chicken) => chicken.id === shot.hitChickId)
     : null;
+  const activeShooter =
+    state.status === "active" && state.currentPlayerId
+      ? getActiveChicken(state, state.currentPlayerId)
+      : null;
 
   return (
     <div className="board-wrap">
@@ -48,14 +62,12 @@ export function GameBoard({
 
         <rect width={BOARD_WIDTH} height={BOARD_HEIGHT} className="board-background" />
         <g className="board-grid">
-          {Array.from({ length: 11 }, (_, index) => {
-            const x = index * 100;
-            return <line key={`grid-x-${x}`} x1={x} x2={x} y1="0" y2={BOARD_HEIGHT} />;
-          })}
-          {Array.from({ length: 7 }, (_, index) => {
-            const y = index * 100;
-            return <line key={`grid-y-${y}`} x1="0" x2={BOARD_WIDTH} y1={y} y2={y} />;
-          })}
+          {xTicks.map((value) => (
+            <line key={`grid-x-${value}`} x1={screenX(value)} x2={screenX(value)} y1="0" y2={BOARD_HEIGHT} />
+          ))}
+          {yTicks.map((value) => (
+            <line key={`grid-y-${value}`} x1="0" x2={BOARD_WIDTH} y1={screenY(value)} y2={screenY(value)} />
+          ))}
         </g>
         <g className="board-axes">
           <line x1={screenX(0)} x2={screenX(0)} y1="0" y2={BOARD_HEIGHT} />
@@ -94,11 +106,21 @@ export function GameBoard({
             if (!player) return null;
             const diameter = (CHICK_RADIUS * 2 * BOARD_WIDTH) / (WORLD.maxX - WORLD.minX);
             const imageSize = diameter * 1.24;
+            const isActiveShooter = activeShooter?.id === chicken.id;
             return (
               <g
                 key={chicken.id}
-                className={`board-chicken ${chicken.alive ? "alive" : "dead"} ${chicken.ownerId === userId ? "owned" : ""}`}
+                className={`board-chicken ${chicken.alive ? "alive" : "dead"} ${chicken.ownerId === userId ? "owned" : ""} ${isActiveShooter ? "active-shooter" : ""}`}
+                data-chick-id={chicken.id}
               >
+                {isActiveShooter && (
+                  <circle
+                    cx={screenX(chicken.x)}
+                    cy={screenY(chicken.y)}
+                    r={diameter / 2 + 9}
+                    className={`active-shooter-halo halo-${player.color}`}
+                  />
+                )}
                 <circle
                   cx={screenX(chicken.x)}
                   cy={screenY(chicken.y)}
@@ -128,11 +150,28 @@ export function GameBoard({
           )}
         </g>
 
-        <g className="axis-labels" aria-hidden="true">
-          <text x="10" y={screenY(0) - 8}>-25</text>
-          <text x={BOARD_WIDTH - 34} y={screenY(0) - 8}>25</text>
-          <text x={screenX(0) + 8} y="18">15</text>
-          <text x={screenX(0) + 8} y={BOARD_HEIGHT - 10}>-15</text>
+        <g className="axis-labels axis-labels-x" aria-hidden="true">
+          {xTicks.map((value) => (
+            <text
+              key={`label-x-${value}`}
+              x={Math.min(BOARD_WIDTH - 7, Math.max(7, screenX(value)))}
+              y={screenY(0) + 19}
+              textAnchor={value === WORLD.minX ? "start" : value === WORLD.maxX ? "end" : "middle"}
+            >
+              {value}
+            </text>
+          ))}
+        </g>
+        <g className="axis-labels axis-labels-y" aria-hidden="true">
+          {yTicks.filter((value) => value !== 0).map((value) => (
+            <text
+              key={`label-y-${value}`}
+              x={screenX(0) + 8}
+              y={Math.min(BOARD_HEIGHT - 9, Math.max(14, screenY(value) - 7))}
+            >
+              {value}
+            </text>
+          ))}
         </g>
       </svg>
       <div className="board-corner-label">NORMAL MODE</div>
