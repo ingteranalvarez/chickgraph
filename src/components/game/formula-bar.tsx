@@ -9,6 +9,9 @@ const inserts = [
   { label: "tan", value: "tan(x)" },
   { label: "sqrt", value: "sqrt(abs(x))" },
   { label: "abs", value: "abs(x)" },
+  { label: "exp", value: "exp(x)" },
+  { label: "ln", value: "ln(abs(x)+1)" },
+  { label: "log", value: "log(abs(x)+1)" },
   { label: "x²", value: "x^2" },
 ];
 

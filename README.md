@@ -15,12 +15,16 @@ artillery genre. It does not contain Graphwar source code or assets.
 - Immutable, case-insensitive unique usernames, country, and 16+ confirmation
 - Public FIFO 1v1 matchmaking and private rooms with six-character invite codes
 - Local unranked practice against a deterministic formula-playing bot
-- Five-level guided tutorial with live graph previews and parameter controls
+- Five-chapter, 18-challenge tutorial with live previews, progressive clues, and a real expression editor
 - Server-authoritative normal-function mode with two chickens per player
 - Deterministic seeded maps, circular hitboxes, 60-second turns, and reconnection
 - Supabase Realtime state updates, presence, and match chat
 - Elo ratings and a worldwide leaderboard
 - Responsive authentication and a desktop-first game interface
+
+Match expressions support numbers, `x`, parentheses, `+`, `-`, `*`, `/`, `^`,
+and `abs`, `sqrt`, `sin`, `cos`, `tan`, `exp`, `ln`, and `log`. The tutorial
+covers every supported operator and function, including shots from both sides.
 
 Google authentication is enabled in production. Six-digit email verification
 templates are included under `supabase/templates`. Public email registration

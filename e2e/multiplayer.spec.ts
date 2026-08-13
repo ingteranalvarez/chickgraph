@@ -84,20 +84,24 @@ test("tutorial, practice, private room, and public queue flows work", async ({ b
   await Promise.all([signIn(first, users[0]), signIn(second, users[1])]);
 
   await first.getByRole("button", { name: "Learn" }).click();
-  await expect(first.getByRole("heading", { name: "Straight line" })).toBeVisible();
+  await expect(first.getByRole("heading", { name: "Start level" })).toBeVisible();
   await expect(first.locator(".tutorial-target-halo")).toBeVisible();
   await expect(first.locator(".board-chicken.active-shooter")).toHaveCount(1);
   await expect(first.locator(".board-corner-label")).toHaveText("LIVE PREVIEW");
   await first.getByRole("button", { name: "Test shot" }).click();
-  await expect(first.getByText("Direct hit. Level complete.")).toBeVisible();
-  await first.getByRole("button", { name: "Next level" }).click();
+  await expect(first.getByText("Direct hit. Challenge complete.")).toBeVisible();
+  await first.getByRole("button", { name: "Next challenge" }).click();
   await expect(first.getByRole("heading", { name: "Climb with slope" })).toBeVisible();
+  await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.getByText(/8 units below the target/)).toBeVisible();
+  await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.getByText("CLUE 2 OF 3")).toBeVisible();
   const slope = first.getByRole("slider", { name: "Slope" });
   await slope.focus();
   for (let step = 0; step < 10; step += 1) await slope.press("ArrowRight");
   await expect(first.locator(".tutorial-formula code")).toHaveText("0.75*x");
   await first.getByRole("button", { name: "Test shot" }).click();
-  await expect(first.getByText("Direct hit. Level complete.")).toBeVisible();
+  await expect(first.getByText("Direct hit. Challenge complete.")).toBeVisible();
   await first.screenshot({
     path: testInfo.outputPath("tutorial-level.png"),
     fullPage: true,
@@ -106,6 +110,25 @@ test("tutorial, practice, private room, and public queue flows work", async ({ b
   await expect(first.getByRole("heading", { name: "Choose a match" })).toBeVisible();
   await first.getByRole("button", { name: "Learn" }).click();
   await expect(first.getByRole("heading", { name: "Descend with slope" })).toBeVisible();
+  await first.getByRole("button", { name: "Play" }).click();
+
+  await first.evaluate(
+    ({ id }) => window.localStorage.setItem(`chickgraph:tutorial:v2:${id}`, "16"),
+    { id: users[0].id },
+  );
+  await first.getByRole("button", { name: "Learn" }).click();
+  await expect(first.getByRole("heading", { name: "Write a V yourself" })).toBeVisible();
+  await first.getByRole("textbox", { name: "Tutorial function" }).fill("-0.2*x");
+  await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.getByText("Good hit, but use abs(...) to complete this challenge.")).toBeVisible();
+  await first.getByRole("textbox", { name: "Tutorial function" }).fill("0.7*abs(x+3)");
+  await expect(first.getByText("Valid expression · live preview active")).toBeVisible();
+  await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.getByText("Direct hit. Challenge complete.")).toBeVisible();
+  await first.screenshot({
+    path: testInfo.outputPath("tutorial-builder.png"),
+    fullPage: true,
+  });
   await first.getByRole("button", { name: "Play" }).click();
 
   await first.getByRole("button", { name: "Practice vs bot" }).click();
