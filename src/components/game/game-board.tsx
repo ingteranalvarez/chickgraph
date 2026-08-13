@@ -1,8 +1,10 @@
 "use client";
 
+import type { CSSProperties } from "react";
+
 import { CHICK_RADIUS, WORLD } from "@/lib/game/constants";
 import { getActiveChicken } from "@/lib/game/engine";
-import type { GameState, ShotResult } from "@/lib/game/types";
+import type { GameState, Point, ShotResult } from "@/lib/game/types";
 
 const BOARD_WIDTH = 1_000;
 const BOARD_HEIGHT = 600;
@@ -21,25 +23,53 @@ const screenX = (x: number) =>
 const screenY = (y: number) =>
   BOARD_HEIGHT - ((y - WORLD.minY) / (WORLD.maxY - WORLD.minY)) * BOARD_HEIGHT;
 
+function shotDuration(points: Point[]): number {
+  const screenLength = points.slice(1).reduce((length, point, index) => {
+    const previous = points[index];
+    return length + Math.hypot(
+      screenX(point.x) - screenX(previous.x),
+      screenY(point.y) - screenY(previous.y),
+    );
+  }, 0);
+  return Math.round(Math.min(1_300, Math.max(500, screenLength / 0.9)));
+}
+
 export function GameBoard({
   state,
   shot,
   userId,
   targetChickId,
   preview = false,
+  shotAnimationKey = null,
 }: {
   state: GameState;
   shot: ShotResult | null;
   userId: string;
   targetChickId?: string;
   preview?: boolean;
+  shotAnimationKey?: string | number | null;
 }) {
   const curve = shot?.points
     .map((point, index) => `${index === 0 ? "M" : "L"} ${screenX(point.x).toFixed(2)} ${screenY(point.y).toFixed(2)}`)
     .join(" ");
+  const shooterColor =
+    state.players.find((player) => player.id === shot?.shooterId)?.color ?? "cyan";
+  const animationDuration = shot ? shotDuration(shot.points) : 900;
+  const animateShot = Boolean(curve) && (!preview || shotAnimationKey !== null);
+  const animationIdentity = preview
+    ? shotAnimationKey
+    : `${shot?.turnNumber}-${shot?.expression}`;
+  const shotStyle = {
+    "--shot-duration": `${animationDuration}ms`,
+    "--impact-delay": `${Math.max(0, animationDuration - 70)}ms`,
+  } as CSSProperties;
   const hitChick = shot?.hitChickId
     ? state.chickens.find((chicken) => chicken.id === shot.hitChickId)
     : null;
+  const impactPoint =
+    shot && (shot.endReason === "chicken" || shot.endReason === "obstacle")
+      ? shot.points.at(-1) ?? null
+      : null;
   const activeShooter =
     state.status === "active" && state.currentPlayerId
       ? getActiveChicken(state, state.currentPlayerId)
@@ -78,7 +108,7 @@ export function GameBoard({
           <line x1="0" x2={BOARD_WIDTH} y1={screenY(0)} y2={screenY(0)} />
         </g>
 
-        <g clipPath="url(#arena-clip)">
+        <g clipPath="url(#arena-clip)" style={shotStyle}>
           {state.obstacles.map((obstacle) => (
             <g key={obstacle.id} className="obstacle">
               <circle
@@ -101,7 +131,7 @@ export function GameBoard({
               key={`${shot?.turnNumber}-${shot?.expression}`}
               d={curve}
               pathLength="1"
-              className={`shot-path shot-${state.players.find((player) => player.id === shot?.shooterId)?.color ?? "cyan"} ${preview ? "shot-preview" : ""}`}
+              className={`shot-path shot-${shooterColor} ${preview ? "shot-preview" : ""}`}
             />
           )}
 
@@ -112,10 +142,11 @@ export function GameBoard({
             const imageSize = diameter * 1.24;
             const isActiveShooter = activeShooter?.id === chicken.id;
             const isTarget = targetChickId === chicken.id;
+            const isRecentHit = !preview && hitChick?.id === chicken.id;
             return (
               <g
                 key={chicken.id}
-                className={`board-chicken ${chicken.alive ? "alive" : "dead"} ${chicken.ownerId === userId ? "owned" : ""} ${isActiveShooter ? "active-shooter" : ""}`}
+                className={`board-chicken ${chicken.alive ? "alive" : "dead"} ${chicken.ownerId === userId ? "owned" : ""} ${isActiveShooter ? "active-shooter" : ""} ${isRecentHit ? "recent-hit" : ""}`}
                 data-chick-id={chicken.id}
               >
                 {isActiveShooter && (
@@ -152,13 +183,39 @@ export function GameBoard({
             );
           })}
 
-          {hitChick && (
+          {curve && animateShot && (
+            <g
+              key={`projectile-${animationIdentity}`}
+              className={`shot-projectile projectile-${shooterColor}`}
+              data-duration={animationDuration}
+              aria-hidden="true"
+            >
+              <circle r="16" className="projectile-glow" />
+              <circle r="8" className="projectile-core" />
+              <circle cx="-2.5" cy="-2.5" r="2.2" className="projectile-highlight" />
+              <animateMotion
+                path={curve}
+                dur={`${animationDuration}ms`}
+                calcMode="linear"
+                fill="freeze"
+              />
+              <animate
+                attributeName="opacity"
+                values="1;1;0"
+                keyTimes="0;0.88;1"
+                dur={`${animationDuration}ms`}
+                fill="freeze"
+              />
+            </g>
+          )}
+
+          {impactPoint && animateShot && (
             <circle
-              key={`hit-${shot?.turnNumber}`}
-              cx={screenX(hitChick.x)}
-              cy={screenY(hitChick.y)}
+              key={`hit-${animationIdentity}`}
+              cx={screenX(impactPoint.x)}
+              cy={screenY(impactPoint.y)}
               r="22"
-              className="impact-ring"
+              className={`impact-ring impact-${shooterColor}`}
             />
           )}
         </g>

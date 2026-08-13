@@ -282,6 +282,7 @@ export function Tutorial({
             userId={profile.id}
             targetChickId={targetId}
             preview
+            shotAnimationKey={attempts > 0 ? `${level.id}-${attempts}` : null}
           />
         </section>
 

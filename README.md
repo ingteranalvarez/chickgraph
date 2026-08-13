@@ -18,6 +18,7 @@ artillery genre. It does not contain Graphwar source code or assets.
 - Five-chapter, 18-challenge tutorial with live previews, progressive clues, and a real expression editor
 - Server-authoritative normal-function mode with two chickens per player
 - Deterministic seeded maps, circular hitboxes, 60-second turns, and reconnection
+- Color-coded projectile, trajectory, and synchronized impact animations
 - Supabase Realtime state updates, presence, and match chat
 - Elo ratings and a worldwide leaderboard
 - Responsive authentication and a desktop-first game interface

@@ -88,7 +88,9 @@ test("tutorial, practice, private room, and public queue flows work", async ({ b
   await expect(first.locator(".tutorial-target-halo")).toBeVisible();
   await expect(first.locator(".board-chicken.active-shooter")).toHaveCount(1);
   await expect(first.locator(".board-corner-label")).toHaveText("LIVE PREVIEW");
+  await expect(first.locator(".shot-projectile")).toHaveCount(0);
   await first.getByRole("button", { name: "Test shot" }).click();
+  await expect(first.locator(".shot-projectile")).toBeVisible();
   await expect(first.getByText("Direct hit. Challenge complete.")).toBeVisible();
   await first.getByRole("button", { name: "Next challenge" }).click();
   await expect(first.getByRole("heading", { name: "Climb with slope" })).toBeVisible();
@@ -143,6 +145,14 @@ test("tutorial, practice, private room, and public queue flows work", async ({ b
     .getAttribute("data-chick-id");
   await first.getByRole("textbox", { name: "Function" }).fill("0");
   await first.getByRole("button", { name: "Fire" }).click();
+  const projectile = first.locator(".shot-projectile");
+  await expect(projectile).toBeVisible();
+  await expect(projectile.locator("animateMotion")).toHaveAttribute("dur", /\d+ms/);
+  await first.waitForTimeout(250);
+  await first.screenshot({
+    path: testInfo.outputPath("projectile-flight.png"),
+    fullPage: true,
+  });
   await expect(first.getByText("Turn 3")).toBeVisible({ timeout: 15_000 });
   await expect(first.getByRole("textbox", { name: "Function" })).toBeEnabled();
   const nextShooter = await first
