@@ -5,6 +5,7 @@ import {
   GameRuleError,
   createInitialState,
   getActiveChicken,
+  getLaunchTranslation,
   resignMatch,
   skipExpiredTurn,
   traceShot,
@@ -68,6 +69,21 @@ describe("deterministic engine", () => {
     const shot = traceShot(state, "alpha", "x^2");
     expect(shot.points[0]).toEqual({ x: -21, y: -8 });
     expect(shot.points[1].y).toBeCloseTo(-9.6784, 4);
+  });
+
+  it("cancels typed additive constants with the automatic launch offset", () => {
+    const state = openState();
+    const withoutConstant = traceShot(state, "alpha", "0.4*x");
+    const withConstant = traceShot(state, "alpha", "0.4*x+17");
+    const baseTranslation = getLaunchTranslation({ x: -21, y: -8 }, "0.4*x");
+    const shiftedTranslation = getLaunchTranslation(
+      { x: -21, y: -8 },
+      "0.4*x+17",
+    );
+
+    expect(withConstant.points).toEqual(withoutConstant.points);
+    expect(shiftedTranslation.functionValue - baseTranslation.functionValue).toBe(17);
+    expect(shiftedTranslation.verticalOffset - baseTranslation.verticalOffset).toBe(-17);
   });
 
   it("alternates a player's active chicken each round", () => {

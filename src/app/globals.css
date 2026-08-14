@@ -1493,6 +1493,68 @@ h2 {
   line-height: 1.45;
 }
 
+.tutorial-launch-translation {
+  display: grid;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--ink);
+  border-radius: 4px;
+  background: #f7f8f5;
+}
+
+.tutorial-launch-translation-heading,
+.tutorial-launch-translation dl > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tutorial-launch-translation-heading .panel-label {
+  margin: 0;
+}
+
+.tutorial-launch-translation code,
+.tutorial-launch-translation dt,
+.tutorial-launch-translation dd {
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.tutorial-launch-translation-heading code {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 750;
+}
+
+.tutorial-launch-translation dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+
+.tutorial-launch-translation dt,
+.tutorial-launch-translation dd {
+  margin: 0;
+  font-size: 10px;
+}
+
+.tutorial-launch-translation dt {
+  color: var(--muted);
+}
+
+.tutorial-launch-translation dd {
+  color: var(--ink-soft);
+  text-align: right;
+}
+
+.tutorial-launch-translation p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .tutorial-expression-builder {
   display: grid;
   gap: 8px;

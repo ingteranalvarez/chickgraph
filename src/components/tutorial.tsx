@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { GameBoard } from "@/components/game/game-board";
-import { traceShot } from "@/lib/game/engine";
+import { getLaunchTranslation, traceShot } from "@/lib/game/engine";
 import {
   createTutorialState,
   tutorialChapterLevels,
@@ -125,14 +125,21 @@ export function Tutorial({
     inputMode === "expression" ? draftExpression : level.formula(values);
   const preview = useMemo(() => {
     try {
-      return { shot: traceShot(state, profile.id, expression), error: "" };
+      return {
+        shot: traceShot(state, profile.id, expression),
+        launchTranslation: level.showLaunchTranslation
+          ? getLaunchTranslation(level.shooter, expression)
+          : null,
+        error: "",
+      };
     } catch (caught) {
       return {
         shot: null,
+        launchTranslation: null,
         error: caught instanceof Error ? caught.message : "This expression is not valid.",
       };
     }
-  }, [expression, profile.id, state]);
+  }, [expression, level, profile.id, state]);
   const targetId = tutorialTargetId(level);
   const levelComplete = levelIndex < completedCount;
   const unlockedHints = Math.min(level.hints.length, 1 + Math.floor(attempts / 2));
@@ -348,6 +355,30 @@ export function Tutorial({
             <div className="tutorial-formula" aria-label={`Function y equals ${expression}`}>
               <span>y =</span>
               <code>{expression}</code>
+            </div>
+          )}
+
+          {preview.launchTranslation && (
+            <div className="tutorial-launch-translation" aria-label="Automatic launch offset">
+              <div className="tutorial-launch-translation-heading">
+                <span className="panel-label">AUTOMATIC LAUNCH OFFSET</span>
+                <code>k = {decimal(preview.launchTranslation.verticalOffset)}</code>
+              </div>
+              <dl>
+                <div>
+                  <dt>Typed curve</dt>
+                  <dd><code>f({decimal(level.shooter.x)}) = {decimal(preview.launchTranslation.functionValue)}</code></dd>
+                </div>
+                <div>
+                  <dt>Game calculates</dt>
+                  <dd><code>{decimal(level.shooter.y)} - ({decimal(preview.launchTranslation.functionValue)}) = {decimal(preview.launchTranslation.verticalOffset)}</code></dd>
+                </div>
+                <div>
+                  <dt>Launch check</dt>
+                  <dd><code>f({decimal(level.shooter.x)}) + k = {decimal(level.shooter.y)}</code></dd>
+                </div>
+              </dl>
+              <p>A typed +c changes the first two values in opposite directions, keeping the shot attached to your chicken.</p>
             </div>
           )}
 

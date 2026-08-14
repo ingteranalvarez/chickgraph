@@ -5,7 +5,7 @@ import {
   TURN_SECONDS,
   WORLD,
 } from "./constants";
-import { parseExpression } from "./expression";
+import { parseExpression, type ParsedExpression } from "./expression";
 import { createChickens, createObstacles } from "./map";
 import type {
   ChickState,
@@ -24,6 +24,33 @@ export class GameRuleError extends Error {
     super(message);
     this.name = "GameRuleError";
   }
+}
+
+export interface LaunchTranslation {
+  functionValue: number;
+  verticalOffset: number;
+}
+
+function launchTranslationFor(
+  expression: ParsedExpression,
+  shooter: Point,
+): LaunchTranslation {
+  const functionValue = expression.evaluate(shooter.x);
+  if (!Number.isFinite(functionValue)) {
+    throw new GameRuleError("The function is not defined at your chicken's position.");
+  }
+
+  return {
+    functionValue,
+    verticalOffset: shooter.y - functionValue,
+  };
+}
+
+export function getLaunchTranslation(
+  shooter: Point,
+  expressionSource: string,
+): LaunchTranslation {
+  return launchTranslationFor(parseExpression(expressionSource), shooter);
 }
 
 const rounded = (value: number) => Math.round(value * 10_000) / 10_000;
@@ -172,10 +199,7 @@ export function traceShot(
   if (!player) throw new GameRuleError("Player is not part of this match.");
 
   const direction = player.seat % 2 === 0 ? 1 : -1;
-  const baseline = expression.evaluate(shooter.x);
-  if (!Number.isFinite(baseline)) {
-    throw new GameRuleError("The function is not defined at your chicken's position.");
-  }
+  const { verticalOffset } = launchTranslationFor(expression, shooter);
 
   const points: Point[] = [{ x: rounded(shooter.x), y: rounded(shooter.y) }];
   let previous = points[0];
@@ -194,7 +218,7 @@ export function traceShot(
       break;
     }
 
-    const next = { x: rounded(x), y: rounded(evaluated - baseline + shooter.y) };
+    const next = { x: rounded(x), y: rounded(evaluated + verticalOffset) };
     points.push(next);
 
     const collision = findCollision(

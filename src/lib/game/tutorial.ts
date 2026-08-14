@@ -60,6 +60,7 @@ export interface TutorialLevel {
   starterExpression?: string;
   solutionExpression?: string;
   requiredAny?: string[];
+  showLaunchTranslation?: boolean;
 }
 
 const number = (value: number) => String(Number(value.toFixed(4)));
@@ -85,7 +86,7 @@ export const tutorialChapters: TutorialChapter[] = [
     id: "foundations",
     title: "Launch basics",
     shortTitle: "Basics",
-    description: "Learn the launch anchor, signs, slope, and constants.",
+    description: "Learn the automatic launch offset, signs, and slope.",
   },
   {
     id: "curves",
@@ -118,9 +119,9 @@ export const tutorialLevels: TutorialLevel[] = [
     id: "straight-line",
     chapterId: "foundations",
     title: "Start level",
-    concept: "The launch anchor",
+    concept: "The automatic launch offset",
     explanation:
-      "Every graph is translated through the active chicken. A constant function therefore fires horizontally.",
+      "The game adds a vertical offset k so the graph passes through the active chicken. For f(x) = 0, k equals the chicken's height, so the shot is horizontal.",
     goal: "Hit the target at the same height.",
     hints: [
       "The target and launcher share the same y coordinate.",
@@ -131,6 +132,7 @@ export const tutorialLevels: TutorialLevel[] = [
     obstacles: [],
     parameters: [],
     formula: () => "0",
+    showLaunchTranslation: true,
   },
   {
     id: "positive-slope",
@@ -193,13 +195,13 @@ export const tutorialLevels: TutorialLevel[] = [
   {
     id: "constant-offset",
     chapterId: "foundations",
-    title: "Mirror the arena",
-    concept: "Direction and the constant trap",
+    title: "See the auto-anchor",
+    concept: "Why a typed constant cancels",
     explanation:
-      "From the right side, x decreases as the shot travels, so slope signs reverse. Changing + c still cancels at launch.",
-    goal: "Fire right-to-left through the gap. Experiment with c and the sign of m.",
+      "The game computes k = chicken y - f(chicken x), then fires y = f(x) + k. A typed +c changes f and k by opposite amounts, so it cannot move the launched path.",
+    goal: "Watch c cancel, then use the slope to fire right-to-left through the gap.",
     hints: [
-      "Move c first and compare the preview before changing m.",
+      "Move Typed +c first: f(21) and k change, but the launch check remains -10.",
       "The shot travels toward smaller x, so a negative slope rises.",
       "The rise is about 14 while the x change is -26.",
     ],
@@ -222,7 +224,7 @@ export const tutorialLevels: TutorialLevel[] = [
       },
       {
         id: "constant",
-        label: "Constant",
+        label: "Typed +c",
         symbol: "c",
         min: -8,
         max: 8,
@@ -233,6 +235,7 @@ export const tutorialLevels: TutorialLevel[] = [
     ],
     formula: (values) => `${number(values.slope)}*x${signedNumber(values.constant)}`,
     shooterSide: "right",
+    showLaunchTranslation: true,
   },
   {
     id: "quadratic-arc",
